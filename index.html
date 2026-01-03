@@ -177,6 +177,12 @@
             width: 100%;
             height: 100%;
             border: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .video-container iframe.visible {
+            opacity: 1;
         }
 
         .video-placeholder {
@@ -483,8 +489,9 @@
             if (selectedGroups.size === 0) {
                 document.getElementById('videoSection').style.display = 'none';
                 document.getElementById('revealTitleBtn').disabled = true;
-                // Reset placeholder state
+                // Reset placeholder and iframe state
                 document.getElementById('videoPlaceholder').classList.remove('hidden');
+                document.getElementById('youtubePlayer').classList.remove('visible');
             }
         }
 
@@ -517,12 +524,16 @@
             const timestamp = extractTimestamp(currentVideo.url);
             
             if (videoId) {
-                const embedUrl = `https://www.youtube.com/embed/${videoId}?start=${timestamp}&autoplay=1`;
-                document.getElementById('youtubePlayer').src = embedUrl;
-                document.getElementById('videoSection').style.display = 'block';
-                
-                // Show placeholder, hide video
+                const embedUrl = `https://www.youtube.com/embed/${videoId}?start=${timestamp}&autoplay=1&modestbranding=1&rel=0`;
+                const iframe = document.getElementById('youtubePlayer');
                 const placeholder = document.getElementById('videoPlaceholder');
+                
+                // Hide iframe first, then set src
+                iframe.classList.remove('visible');
+                iframe.src = embedUrl;
+                
+                // Show video section and placeholder
+                document.getElementById('videoSection').style.display = 'block';
                 placeholder.classList.remove('hidden');
                 
                 // Reset title and group display
@@ -546,6 +557,10 @@
                 // Hide placeholder to reveal video
                 const placeholder = document.getElementById('videoPlaceholder');
                 placeholder.classList.add('hidden');
+                
+                // Show iframe
+                const iframe = document.getElementById('youtubePlayer');
+                iframe.classList.add('visible');
                 
                 // Show title
                 document.getElementById('titleDisplay').textContent = currentVideo.title;
