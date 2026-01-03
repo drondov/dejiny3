@@ -179,6 +179,57 @@
             border: none;
         }
 
+        .video-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            z-index: 10;
+            border-radius: 15px;
+            transition: opacity 0.5s ease;
+        }
+
+        .video-placeholder.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .video-placeholder-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .video-placeholder-text {
+            font-size: 1.5em;
+            font-weight: 600;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .video-placeholder-hint {
+            font-size: 1em;
+            margin-top: 15px;
+            opacity: 0.8;
+            font-style: italic;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
         .title-section {
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             padding: 25px;
@@ -186,8 +237,10 @@
             text-align: center;
             min-height: 80px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            gap: 10px;
         }
 
         .title-hidden {
@@ -200,6 +253,18 @@
             font-size: 1.5em;
             color: #333;
             font-weight: 600;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .group-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 1em;
+            font-weight: 600;
+            margin-top: 5px;
             animation: fadeIn 0.5s ease;
         }
 
@@ -288,9 +353,15 @@
             <div class="video-section" id="videoSection" style="display: none;">
                 <div class="video-container">
                     <iframe id="youtubePlayer" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <div class="video-placeholder" id="videoPlaceholder">
+                        <div class="video-placeholder-icon">🎵</div>
+                        <div class="video-placeholder-text">Music is playing...</div>
+                        <div class="video-placeholder-hint">Click "Reveal Title" to see the video and title</div>
+                    </div>
                 </div>
                 <div class="title-section">
                     <p id="titleDisplay" class="title-hidden">Title will be revealed here</p>
+                    <span id="groupDisplay" style="display: none;"></span>
                 </div>
             </div>
 
@@ -412,6 +483,8 @@
             if (selectedGroups.size === 0) {
                 document.getElementById('videoSection').style.display = 'none';
                 document.getElementById('revealTitleBtn').disabled = true;
+                // Reset placeholder state
+                document.getElementById('videoPlaceholder').classList.remove('hidden');
             }
         }
 
@@ -447,8 +520,17 @@
                 const embedUrl = `https://www.youtube.com/embed/${videoId}?start=${timestamp}&autoplay=1`;
                 document.getElementById('youtubePlayer').src = embedUrl;
                 document.getElementById('videoSection').style.display = 'block';
+                
+                // Show placeholder, hide video
+                const placeholder = document.getElementById('videoPlaceholder');
+                placeholder.classList.remove('hidden');
+                
+                // Reset title and group display
                 document.getElementById('titleDisplay').textContent = 'Title will be revealed here';
                 document.getElementById('titleDisplay').className = 'title-hidden';
+                document.getElementById('groupDisplay').style.display = 'none';
+                document.getElementById('groupDisplay').textContent = '';
+                
                 document.getElementById('revealTitleBtn').disabled = false;
                 
                 // Scroll to video
@@ -458,11 +540,22 @@
             }
         }
 
-        // Reveal title
+        // Reveal title, group, and video
         function revealTitle() {
             if (currentVideo) {
+                // Hide placeholder to reveal video
+                const placeholder = document.getElementById('videoPlaceholder');
+                placeholder.classList.add('hidden');
+                
+                // Show title
                 document.getElementById('titleDisplay').textContent = currentVideo.title;
                 document.getElementById('titleDisplay').className = 'title-revealed';
+                
+                // Show group badge
+                const groupDisplay = document.getElementById('groupDisplay');
+                groupDisplay.textContent = `Group ${currentVideo.group}`;
+                groupDisplay.className = 'group-badge';
+                groupDisplay.style.display = 'inline-block';
             }
         }
 
